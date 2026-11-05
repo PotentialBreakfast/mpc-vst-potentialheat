@@ -1,0 +1,130 @@
+{
+ "name": "PotentialHeat",
+ "params": [
+  {
+   "key": "preset",
+   "name": "Preset",
+   "options": [
+    "Warm Drums",
+    "Bus Glue",
+    "Break Heat",
+    "Loud & Clean",
+    "Smash",
+    "Tape Glow",
+    "Fat Kick",
+    "Snare Bite",
+    "Bass Warmth",
+    "Beat Master",
+    "Parallel Crush",
+    "Peak Catcher"
+   ],
+   "default": "Warm Drums"
+  },
+  {
+   "key": "drive",
+   "name": "Drive",
+   "min": 0,
+   "max": 24,
+   "default": 6,
+   "unit": "dB"
+  },
+  {
+   "key": "character",
+   "name": "Character",
+   "options": [
+    "SOFT",
+    "TAPE",
+    "HARD"
+   ],
+   "default": "SOFT"
+  },
+  {
+   "key": "tone",
+   "name": "Tone",
+   "min": -100,
+   "max": 100,
+   "default": 0,
+   "unit": "%"
+  },
+  {
+   "key": "ceiling",
+   "name": "Ceiling",
+   "min": -6,
+   "max": 0,
+   "default": -0.3,
+   "unit": "dB"
+  },
+  {
+   "key": "match",
+   "name": "Level Match",
+   "options": [
+    "OFF",
+    "ON"
+   ],
+   "default": "ON"
+  },
+  {
+   "key": "mix",
+   "name": "Mix",
+   "min": 0,
+   "max": 100,
+   "default": 100,
+   "unit": "%"
+  },
+  {
+   "key": "output",
+   "name": "Output",
+   "min": -12,
+   "max": 12,
+   "default": 0,
+   "unit": "dB"
+  },
+  {
+   "key": "reading",
+   "name": "Tip",
+   "type": "readout",
+   "display": "string",
+   "live": true,
+   "poll": false
+  },
+  {
+   "key": "meter",
+   "name": "Meter",
+   "options": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30"
+   ],
+   "default": "0",
+   "live": true
+  }
+ ]
+}

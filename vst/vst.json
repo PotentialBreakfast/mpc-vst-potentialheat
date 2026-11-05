@@ -1,0 +1,32 @@
+{
+ "name": "PotentialHeat",
+ "vendor": "PotentialBreaks",
+ "uid": "PbHt",
+ "version": 1000,
+ "so": "potentialheat.so",
+ "params": "params.json",
+ "layout": "layout.conf",
+ "defines": {
+  "HAS_DISPLAY_REV": 1,
+  "PARAM_TEXT_MAX": 96,
+  "DISPLAY_REV_NO_UPDATE": 1
+ },
+ "build": {
+  "root": "..",
+  "sources": [
+   "src/heat.c"
+  ],
+  "cflags": [
+   "-ffast-math"
+  ],
+  "libs": [
+   "-lm"
+  ]
+ },
+ "nrpn": false,
+ "art": "html",
+ "effect": true,
+ "programs": {
+  "param": "preset"
+ }
+}
