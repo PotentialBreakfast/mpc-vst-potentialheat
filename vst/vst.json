@@ -2,7 +2,7 @@
  "name": "PotentialHeat",
  "vendor": "PotentialBreaks",
  "uid": "PbHt",
- "version": 1000,
+ "version": 1001,
  "so": "potentialheat.so",
  "params": "params.json",
  "layout": "layout.conf",
@@ -27,6 +27,6 @@
  "art": "html",
  "effect": true,
  "programs": {
-  "param": "preset"
+  "param": "preset_pick"
  }
 }

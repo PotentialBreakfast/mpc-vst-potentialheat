@@ -3,7 +3,7 @@
  "params": [
   {
    "key": "preset",
-   "name": "Preset",
+   "name": "(unused)",
    "options": [
     "Warm Drums",
     "Bus Glue",
@@ -18,7 +18,8 @@
     "Parallel Crush",
     "Peak Catcher"
    ],
-   "default": "Warm Drums"
+   "default": "Warm Drums",
+   "legacy": true
   },
   {
    "key": "drive",
@@ -125,6 +126,25 @@
    ],
    "default": "0",
    "live": true
+  },
+  {
+   "key": "preset_pick",
+   "name": "Preset",
+   "options": [
+    "Warm Drums",
+    "Bus Glue",
+    "Break Heat",
+    "Loud & Clean",
+    "Smash",
+    "Tape Glow",
+    "Fat Kick",
+    "Snare Bite",
+    "Bass Warmth",
+    "Beat Master",
+    "Parallel Crush",
+    "Peak Catcher"
+   ],
+   "default": "Warm Drums"
   }
  ]
 }
