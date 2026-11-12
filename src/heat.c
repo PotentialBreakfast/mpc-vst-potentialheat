@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "engine.h"
+#include "../shared/looks/potential_theme.h"   /* the LOOK switch (parameter "theme") */
 
 #define FS 44100.0f
 #define PI_F 3.14159265f
@@ -64,6 +65,7 @@ typedef struct {
     float s_drive, s_ceil, s_mix, s_out, s_tone, s_match;
     /* display */
     float win_red, red_hold, in_hold; int win_n, meter, slow; unsigned rev;
+    pt_theme_t theme;   /* which look MPC loads next time: not part of the saved state */
 } heat_t;
 
 static void apply_preset(heat_t *s, int n) {
@@ -90,11 +92,11 @@ static float match_gain(const heat_t *s) {   /* rough loudness match for the dri
 }
 
 static void *create(const char *data_dir) {
-    (void)data_dir;
     static int made = 0;
     if (!made) { make_filter(); made = 1; }
     heat_t *s = calloc(1, sizeof *s);
     if (!s) return NULL;
+    pt_theme_init(&s->theme, data_dir);
     apply_preset(s, 0); s->pending = 0;
     s->s_drive = powf(10.0f, s->p[P_DRIVE] / 20.0f); s->s_ceil = powf(10.0f, s->p[P_CEIL] / 20.0f);
     s->s_mix = s->p[P_MIX] / 100.0f; s->s_out = powf(10.0f, s->p[P_OUT] / 20.0f); s->s_match = match_gain(s); s->s_tone = s->p[P_TONE] / 100.0f;
@@ -114,6 +116,7 @@ static int find(const char *key) {
 
 static void set_param(void *inst, const char *key, const char *val) {
     heat_t *s = inst;
+    if (pt_theme_set(&s->theme, key, val)) return;
     if (!strcmp(key, "state")) {
         char tmp[512]; snprintf(tmp, sizeof tmp, "%s", val);
         for (char *tok = strtok(tmp, ";"); tok; tok = strtok(NULL, ";")) {
@@ -147,6 +150,7 @@ int mpc_engine_changed(void *inst, char *key, int len) {
 
 static int get_param(void *inst, const char *key, char *buf, int buf_len) {
     heat_t *s = inst;
+    { int pt_n = pt_theme_get(&s->theme, key, buf, buf_len); if (pt_n) return pt_n; }
     if (!strcmp(key, "state")) {
         int n = 0;
         for (int i = 1; i < NP && n < buf_len; i++) n += snprintf(buf + n, buf_len - n, "%s=%g;", KEYS[i], (double)s->p[i]);
