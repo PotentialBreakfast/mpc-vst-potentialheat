@@ -2,7 +2,8 @@
  * DRIVE pushes the signal into a saturation curve that rounds the peaks off at the CEILING instead of clipping:
  *   CHARACTER  SOFT (smooth, warm), TAPE (asymmetric, a little darker, even harmonics), HARD (firm knee, loudest)
  *   TONE       a dark <-> bright tilt after the saturation
- *   LEVEL MATCH  turns the output down as DRIVE goes up, so you hear the colour, not just "louder"
+ *   LEVEL MATCH  measures the loudness in and out and turns the processed sound down by the difference (1.3.0; it was a
+ *                fixed estimate from DRIVE before), so you hear the colour, not just "louder"
  * then dry/wet MIX and OUTPUT. The curves run at 2x the sample rate, so pushing it hard stays clean (no aliasing fizz).
  * A PRESET list (also MPC's PRESET menu) sets everything in one tap. A meter shows how much is being shaved off.
  * 44.1 kHz, interleaved int16 stereo, 128-frame blocks (wrapper/engine.h). */
@@ -21,7 +22,7 @@ enum { P_OLD_PRESET, P_DRIVE, P_CHAR, P_TONE, P_CEIL, P_MATCH, P_MIX, P_OUT, P_P
 static const char *KEYS[NP] = {"preset", "drive", "character", "tone", "ceiling", "match", "mix", "output", "preset_pick", "dice", "wild"};
 
 /* presets: drive dB, character, tone %, ceiling dB, level match, mix %, output dB */
-#define NPRESET 12
+#define NPRESET 16
 static const float PRESETS[NPRESET][7] = {
     { 6, 0,   0, -0.3f, 1, 100,  0},   /* Warm Drums */
     { 4, 1, -10, -0.3f, 1, 100,  0},   /* Bus Glue */
@@ -35,9 +36,15 @@ static const float PRESETS[NPRESET][7] = {
     { 3, 0,   0, -0.5f, 0, 100,  0},   /* Beat Master */
     {20, 2,  10, -0.3f, 1,  40,  0},   /* Parallel Crush */
     { 0, 0,   0, -0.3f, 1, 100,  0},   /* Peak Catcher */
+    /* 1.3.0: drum-bus pairs. Pick the same name in PotentialPunch, put Punch first and Heat after it on the bus */
+    { 7, 1, -10, -0.3f, 1, 100,  0},   /* Boom Bap Bus */
+    { 9, 1, -35, -1.0f, 1, 100,  0},   /* Lo-Fi Bus */
+    { 6, 2,  15, -0.3f, 1, 100,  0},   /* Modern Bus */
+    { 4, 0,   0, -0.5f, 1,  70,  0},   /* Glue Bus */
 };
 static const char *PRESET_NAMES[NPRESET] = {"Warm Drums", "Bus Glue", "Break Heat", "Loud & Clean", "Smash", "Tape Glow",
-                                            "Fat Kick", "Snare Bite", "Bass Warmth", "Beat Master", "Parallel Crush", "Peak Catcher"};
+                                            "Fat Kick", "Snare Bite", "Bass Warmth", "Beat Master", "Parallel Crush", "Peak Catcher",
+                                            "Boom Bap Bus", "Lo-Fi Bus", "Modern Bus", "Glue Bus"};
 
 /* ---- 2x oversampling: a 31-tap half-band low-pass (windowed sinc, Blackman), used for up- and down-sampling ---- */
 #define NT 31
@@ -54,6 +61,20 @@ static void make_filter(void) {
     for (int i = 0; i < NT; i++) H[i] = (float)(H[i] / sum);
 }
 
+
+/* ---- AUTO LEVEL: measures how loud the dry and processed sound are (about the last second) and turns the processed
+ * sound by the difference, so louder never just sounds better. Holds still in near-silence. ---- */
+typedef struct { float e_in, e_out, g; } lm_t;
+static inline float lm_step(lm_t *m, float p_in, float p_out, float k_e, float k_g, float g_lo, float g_hi) {
+    m->e_in += (p_in - m->e_in) * k_e; m->e_out += (p_out - m->e_out) * k_e;
+    if (m->e_in > 1e-5f && m->e_out > 1e-9f) {   /* above about -50 dBFS */
+        float want = sqrtf(m->e_in / m->e_out);
+        want = want < g_lo ? g_lo : want > g_hi ? g_hi : want;
+        m->g += (want - m->g) * k_g;
+    }
+    return m->g;
+}
+
 typedef struct {
     float p[NP];
     int pending;
@@ -63,6 +84,7 @@ typedef struct {
     float dc_x[2], dc_y[2];               /* DC blocker (TAPE's asymmetry) */
     float tilt_lp[2], tape_lp[2];
     float s_drive, s_ceil, s_mix, s_out, s_tone, s_match;
+    lm_t lm;                              /* LEVEL MATCH, measured */
     /* display */
     float win_red, red_hold, in_hold; int win_n, meter, slow; unsigned rev;
     pt_theme_t theme;   /* which look MPC loads next time: not part of the saved state */
@@ -109,8 +131,8 @@ static void clamp_all(heat_t *s) {
     s->p[P_DICE] = 0;
 }
 
-static float match_gain(const heat_t *s) {   /* rough loudness match for the drive */
-    return s->p[P_MATCH] > 0.5f ? powf(10.0f, -0.5f * s->p[P_DRIVE] / 20.0f) : 1.0f;
+static float match_gain(const heat_t *s) {   /* LEVEL MATCH: the measured gain (only ever down), else none */
+    return s->p[P_MATCH] > 0.5f ? s->lm.g : 1.0f;
 }
 
 static void *create(const char *data_dir) {
@@ -118,6 +140,7 @@ static void *create(const char *data_dir) {
     if (!made) { make_filter(); made = 1; }
     heat_t *s = calloc(1, sizeof *s);
     if (!s) return NULL;
+    s->lm.g = 1.0f;
     pt_theme_init(&s->theme, data_dir);
     apply_preset(s, 0); s->pending = 0;
     s->p[P_WILD] = 1;
@@ -228,7 +251,9 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
     const int ch = (int)s->p[P_CHAR];
     const float k = 1.0f - expf(-1.0f / (0.02f * FS));
     const float t_drive = powf(10.0f, s->p[P_DRIVE] / 20.0f), t_ceil = powf(10.0f, s->p[P_CEIL] / 20.0f);
-    const float t_mix = s->p[P_MIX] / 100.0f, t_out = powf(10.0f, s->p[P_OUT] / 20.0f), t_match = match_gain(s), t_tone = s->p[P_TONE] / 100.0f;
+    const float t_mix = s->p[P_MIX] / 100.0f, t_out = powf(10.0f, s->p[P_OUT] / 20.0f), t_tone = s->p[P_TONE] / 100.0f;
+    const float k_e = 1.0f - expf(-1.0f / (0.8f * FS)), k_lg = 1.0f - expf(-1.0f / (0.25f * FS));
+    const int matching = s->p[P_MATCH] > 0.5f;
     const float k_tilt = 1.0f - expf(-2.0f * PI_F * 900.0f / FS);
     const float k_tape = 1.0f - expf(-2.0f * PI_F * 12000.0f / (2 * FS));  /* tape's gentle top-end roll-off, at the 2x rate */
     const float k_dc = 1.0f - 2.0f * PI_F * 8.0f / FS;
@@ -237,7 +262,7 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
     const float g_lo = powf(10.0f, -s->s_tone * 6.0f / 20.0f), g_hi = powf(10.0f, s->s_tone * 6.0f / 20.0f);
     for (int n = 0; n < frames; n++) {
         s->s_drive += (t_drive - s->s_drive) * k; s->s_ceil += (t_ceil - s->s_ceil) * k;
-        s->s_mix += (t_mix - s->s_mix) * k; s->s_out += (t_out - s->s_out) * k; s->s_match += (t_match - s->s_match) * k;
+        s->s_mix += (t_mix - s->s_mix) * k; s->s_out += (t_out - s->s_out) * k;
         float in[2] = {in_lr[2 * n] * (1.0f / 32768.0f), in_lr[2 * n + 1] * (1.0f / 32768.0f)};
         float pre = s->s_drive / s->s_ceil, post = s->s_ceil;
         float out[2], red = 1.0f;
@@ -280,6 +305,7 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
                 }
             s->dn_i = (di + 1) % NT;
         }
+        float wet_raw[2], dry_d[2];
         for (int c = 0; c < 2; c++) {
             float acc = dec[c];
             /* DC blocker (TAPE's asymmetry makes a little DC) */
@@ -287,9 +313,17 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
             /* tone tilt: +-6 dB around 900 Hz */
             s->tilt_lp[c] += (y - s->tilt_lp[c]) * k_tilt;
             float lo = s->tilt_lp[c], hi = y - lo;
-            float wet = (lo * g_lo + hi * g_hi) * s->s_match;
+            wet_raw[c] = lo * g_lo + hi * g_hi;
             int dj = s->dry_i - HD; if (dj < 0) dj += 32;
-            float dry = s->dry[c][dj];
+            dry_d[c] = s->dry[c][dj];
+        }
+        {   /* LEVEL MATCH: the processed sound measured against the dry, turned down (never up) to match */
+            float g = lm_step(&s->lm, 0.5f * (dry_d[0] * dry_d[0] + dry_d[1] * dry_d[1]),
+                              0.5f * (wet_raw[0] * wet_raw[0] + wet_raw[1] * wet_raw[1]), k_e, k_lg, 0.063f, 1.0f);
+            s->s_match += ((matching ? g : 1.0f) - s->s_match) * k;
+        }
+        for (int c = 0; c < 2; c++) {
+            float wet = wet_raw[c] * s->s_match, dry = dry_d[c];
             out[c] = (dry + (wet - dry) * s->s_mix) * s->s_out;
         }
         s->dry_i = (s->dry_i + 1) & 31;

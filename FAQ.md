@@ -29,7 +29,7 @@ Yes, on **MPC OS 3.10.1 or later**, with the **`-akai-vst2.zip`**: it has builds
 Start from a preset and move **DRIVE** in small steps, or use **MIX** to blend in the original sound (parallel saturation).
 
 **It gets quieter when I turn DRIVE up.**
-That's **LEVEL MATCH** keeping the level steady so you can judge the colour. Switch it off, or raise **OUTPUT**.
+That's **LEVEL MATCH** keeping the loudness the same as what goes in, so you can judge the colour. Switch it off, or raise **OUTPUT**.
 
 **I want it louder, like a limiter.**
 Use **Loud & Clean** or **Beat Master**: LEVEL MATCH off, a little DRIVE, CEILING just under 0 dB.

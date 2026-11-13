@@ -18,13 +18,15 @@ Free and open source (MIT), made by **PotentialBreaks**. It runs inside the MPC 
 | **CHARACTER** | **SOFT** (clean until near the top, then warm and smooth), **TAPE** (a little darker and rounder, like tape) or **HARD** (firmest and loudest) |
 | **TONE** | Dark to bright, after the saturation |
 | **CEILING** | The most the peaks can reach (-6 to 0 dB): it never clips past it |
-| **LEVEL MATCH** | Turns the level down as DRIVE goes up, so you hear the colour, not just "louder". Switch it off to use it as a loudness clipper |
+| **LEVEL MATCH** | Measures how loud the sound is going in and coming out, and turns the processed sound down by the difference, so you hear the colour, not just "louder". Switch it off to use it as a loudness clipper |
 | **MIX / OUTPUT** | Blend with the original sound (parallel saturation), set the level |
 | **ROLL** | One tap for a random setting that still sounds good. **MILD**, **MEDIUM** or **WILD** under it sets how far it goes |
 
 The curves run at twice the sample rate inside, so even pushed hard it stays clean, without harsh fizz. A live meter shows how much is being shaved off the peaks.
 
-**Presets** (one tap on the page, and in the MPC's PRESET menu): Warm Drums, Bus Glue, Break Heat, Loud & Clean, Smash, Tape Glow, Fat Kick, Snare Bite, Bass Warmth, Beat Master, Parallel Crush and Peak Catcher.
+**Presets** (one tap on the page, and in the MPC's PRESET menu): Warm Drums, Bus Glue, Break Heat, Loud & Clean, Smash, Tape Glow, Fat Kick, Snare Bite, Bass Warmth, Beat Master, Parallel Crush and Peak Catcher, plus the drum-bus pairs.
+
+**Drum-bus pairs:** Boom Bap Bus, Lo-Fi Bus, Modern Bus and Glue Bus are in both PotentialPunch and PotentialHeat, made to work together. Put Punch first and Heat after it on your drum bus, and pick the same name in each.
 
 ## How to use it
 
@@ -37,7 +39,7 @@ PotentialHeat comes in three looks: **Print Plate** (the default), **Night Rack*
 ## Limitations
 
 - **It adds about 0.3 ms of delay** (15 samples) for the oversampling. The dry signal in MIX is delayed to match, so there's no phasing.
-- **LEVEL MATCH is a rough match**, not exact loudness: trust your ears and use OUTPUT.
+- **LEVEL MATCH evens out the average loudness** over about a second. It only turns down, so a lower CEILING still sounds a little quieter, and it holds still in near-silence.
 - **Stereo in, stereo out** (each side clipped on its own), at 44.1 kHz.
 - **Tested on an MPC One only** (Gen1). The 64-bit build for Gen2 MPCs passes Akai's own checks but hasn't been tried on a Gen2 MPC yet.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 (2026-11)
+- **LEVEL MATCH now measures.** It compares how loud the sound is going in and coming out (over about a second) and turns the processed sound down by the difference, so louder never just sounds better. Before, it guessed from DRIVE alone. Projects with LEVEL MATCH on will now sit at the same loudness as the dry sound.
+- **Drum-bus pair presets**: Boom Bap Bus, Lo-Fi Bus, Modern Bus and Glue Bus. They're in PotentialPunch 1.3.0 too, made to work together: put Punch first and Heat after it on your drum bus and pick the same name in each.
+- The preset keys are a little narrower to fit the four new ones.
+
 ## 1.2.0 (2026-11)
 - **ROLL**: one tap for a random setting that still sounds good: drive, character, tone, ceiling and mix. **MILD**, **MEDIUM** or **WILD** under it sets how far it goes (MILD stays gentle, WILD pushes hard). LEVEL MATCH is kept on and OUTPUT at 0 dB, so a roll never jumps in volume. Keep rolling until you like it, then fine-tune.
 - The preset keys are a little narrower to make room for it. Two parameters were added at the end of the list (Roll, Roll Wildness); saved projects open as before.

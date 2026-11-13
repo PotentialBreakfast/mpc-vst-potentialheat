@@ -142,7 +142,11 @@
         "Bass Warmth",
         "Beat Master",
         "Parallel Crush",
-        "Peak Catcher"
+        "Peak Catcher",
+        "Boom Bap Bus",
+        "Lo-Fi Bus",
+        "Modern Bus",
+        "Glue Bus"
       ],
       "default": "Warm Drums"
     },
