@@ -17,8 +17,8 @@
 #define FS 44100.0f
 #define PI_F 3.14159265f
 
-enum { P_OLD_PRESET, P_DRIVE, P_CHAR, P_TONE, P_CEIL, P_MATCH, P_MIX, P_OUT, P_PRESET, NP };
-static const char *KEYS[NP] = {"preset", "drive", "character", "tone", "ceiling", "match", "mix", "output", "preset_pick"};
+enum { P_OLD_PRESET, P_DRIVE, P_CHAR, P_TONE, P_CEIL, P_MATCH, P_MIX, P_OUT, P_PRESET, P_DICE, P_WILD, NP };
+static const char *KEYS[NP] = {"preset", "drive", "character", "tone", "ceiling", "match", "mix", "output", "preset_pick", "dice", "wild"};
 
 /* presets: drive dB, character, tone %, ceiling dB, level match, mix %, output dB */
 #define NPRESET 12
@@ -76,6 +76,26 @@ static void apply_preset(heat_t *s, int n) {
 }
 
 static float clampf(float x, float lo, float hi) { return x < lo ? lo : x > hi ? hi : x; }
+/* ---- DICE: ROLL makes a new setting; WILD (MILD / MEDIUM / WILD) says how far it goes ---- */
+static uint32_t dice_rng = 0x9e3779b9u;
+static float dice_u(void) { dice_rng ^= dice_rng << 13; dice_rng ^= dice_rng >> 17; dice_rng ^= dice_rng << 5; return (dice_rng >> 8) / 16777216.0f; }
+static float dice_in(float lo, float hi) { return lo + (hi - lo) * dice_u(); }
+static int dice_pick(const int *w, int n) { int t = 0; for (int i = 0; i < n; i++) t += w[i]; float r = dice_u() * (float)t; for (int i = 0; i < n; i++) { if (r < (float)w[i]) return i; r -= (float)w[i]; } return n - 1; }
+static float dice_step(float x, float step) { return roundf(x / step) * step; }
+
+static void roll(heat_t *s) {
+    int w = (int)s->p[P_WILD];
+    static const float DRV[3][2] = {{2, 8}, {4, 14}, {8, 24}}, TONE[3] = {20, 40, 80}, CEIL[3] = {-1, -3, -6}, MIX[3] = {80, 60, 30};
+    static const int CH[3][3] = {{5, 5, 0}, {4, 4, 2}, {1, 1, 1}};
+    s->p[P_DRIVE] = dice_step(dice_in(DRV[w][0], DRV[w][1]), 0.5f);
+    s->p[P_CHAR] = (float)dice_pick(CH[w], 3);
+    s->p[P_TONE] = dice_step(dice_in(-TONE[w], TONE[w]), 1);
+    s->p[P_CEIL] = dice_step(dice_in(CEIL[w], -0.1f), 0.1f);
+    s->p[P_MATCH] = 1;                       /* level matched, so a roll is judged by its sound, not its loudness */
+    s->p[P_MIX] = dice_step(dice_in(MIX[w], 100), 1);
+    s->p[P_OUT] = 0;
+    s->pending |= 0xfe; s->rev++;
+}
 static void clamp_all(heat_t *s) {
     s->p[P_PRESET] = clampf(roundf(s->p[P_PRESET]), 0, NPRESET - 1);
     s->p[P_DRIVE] = clampf(s->p[P_DRIVE], 0, 24);
@@ -85,6 +105,8 @@ static void clamp_all(heat_t *s) {
     s->p[P_MATCH] = clampf(roundf(s->p[P_MATCH]), 0, 1);
     s->p[P_MIX] = clampf(s->p[P_MIX], 0, 100);
     s->p[P_OUT] = clampf(s->p[P_OUT], -12, 12);
+    s->p[P_WILD] = clampf(roundf(s->p[P_WILD]), 0, 2);
+    s->p[P_DICE] = 0;
 }
 
 static float match_gain(const heat_t *s) {   /* rough loudness match for the drive */
@@ -98,6 +120,8 @@ static void *create(const char *data_dir) {
     if (!s) return NULL;
     pt_theme_init(&s->theme, data_dir);
     apply_preset(s, 0); s->pending = 0;
+    s->p[P_WILD] = 1;
+    dice_rng ^= (uint32_t)(uintptr_t)s;
     s->s_drive = powf(10.0f, s->p[P_DRIVE] / 20.0f); s->s_ceil = powf(10.0f, s->p[P_CEIL] / 20.0f);
     s->s_mix = s->p[P_MIX] / 100.0f; s->s_out = powf(10.0f, s->p[P_OUT] / 20.0f); s->s_match = match_gain(s); s->s_tone = s->p[P_TONE] / 100.0f;
     s->in_hold = -120.0f;
@@ -137,6 +161,7 @@ static void set_param(void *inst, const char *key, const char *val) {
         if (n != (int)s->p[P_PRESET]) apply_preset(s, n);
         return;
     }
+    if (i == P_DICE) { if (atof(val) > 0.5) roll(s); return; }   /* a trigger: each press rolls */
     s->p[i] = (float)atof(val);
     clamp_all(s);
 }
@@ -166,7 +191,8 @@ static int get_param(void *inst, const char *key, char *buf, int buf_len) {
     int i = find(key);
     if (i < 0) return 0;
     if (i == P_OLD_PRESET) i = P_PRESET;
-    if (i == P_PRESET || i == P_CHAR || i == P_MATCH) return snprintf(buf, buf_len, "%d", (int)lroundf(s->p[i]));
+    if (i == P_DICE) return snprintf(buf, buf_len, "0");
+    if (i == P_PRESET || i == P_CHAR || i == P_MATCH || i == P_WILD) return snprintf(buf, buf_len, "%d", (int)lroundf(s->p[i]));
     return snprintf(buf, buf_len, "%g", (double)s->p[i]);
 }
 

@@ -20,6 +20,7 @@ Free and open source (MIT), made by **PotentialBreaks**. It runs inside the MPC 
 | **CEILING** | The most the peaks can reach (-6 to 0 dB): it never clips past it |
 | **LEVEL MATCH** | Turns the level down as DRIVE goes up, so you hear the colour, not just "louder". Switch it off to use it as a loudness clipper |
 | **MIX / OUTPUT** | Blend with the original sound (parallel saturation), set the level |
+| **ROLL** | One tap for a random setting that still sounds good. **MILD**, **MEDIUM** or **WILD** under it sets how far it goes |
 
 The curves run at twice the sample rate inside, so even pushed hard it stays clean, without harsh fizz. A live meter shows how much is being shaved off the peaks.
 
