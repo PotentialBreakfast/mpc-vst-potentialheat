@@ -1,0 +1,2 @@
+# tools/bench.sh -j on an MPC One (Gen1), MPC OS 3.10.1, MPC running, 2026-11-13, PotentialHeat 1.1.1
+{"plugin": "PotentialHeat", "instrument": 0, "open_ms": 0.5, "p99_pct": 6.0, "max_pct": 6.6, "threads_pct": 0.0, "verdict": "PASS"}
