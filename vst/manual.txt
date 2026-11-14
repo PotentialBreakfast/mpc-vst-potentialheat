@@ -1,0 +1,57 @@
+= START
+# PotentialHeat: soft clipper and bus saturator
+Pushes your drums, breaks or whole beat into a warm curve that rounds the peaks off instead of clipping. Louder, thicker and more together, without the harsh crackle.
+
+- Add it as an insert effect on a track, program, pad or bus. It is not in the instrument list.
+- Tap a preset on the HEAT page, then set how hard it works with DRIVE.
+- On a drum bus, try it after PotentialPunch: Punch shapes the hits, Heat warms them up and catches the peaks.
+- The meter shows how much is being shaved off the peaks.
+
+The full PotentialSuite manual: github.com/PotentialBreakfast/potential-plugins
+
+= CONTROLS
+# Controls
+- DRIVE: how hard the sound is pushed into the curve, 0 to 24 dB.
+- CHARACTER: SOFT (clean until near the top, then warm and smooth), TAPE (a little darker and rounder) or HARD (firmest and loudest).
+- TONE: dark to bright, after the saturation.
+- CEILING: the most the peaks can reach, -6 to 0 dB. It never clips past it.
+- LEVEL MATCH: turns the processed sound down by the loudness it gained, so you hear the colour and not just louder. Switch it off to use Heat as a loudness clipper.
+- MIX: blend with the original sound (parallel saturation). OUTPUT: the level after the effect.
+- ROLL: one tap for a random setting that still sounds good. MILD, MEDIUM or WILD sets how far it goes.
+
+= PRESETS
+# Presets
+One tap on the HEAT page, and in the MPC's PRESET menu. Each one is a starting point.
+
+- Warm Drums, Bus Glue, Break Heat, Loud & Clean, Smash, Tape Glow, Fat Kick, Snare Bite, Bass Warmth, Beat Master, Parallel Crush and Peak Catcher.
+- Drum-bus pairs: Boom Bap Bus, Lo-Fi Bus, Modern Bus and Glue Bus are in PotentialPunch too. See the CHAINS page.
+
+= CHAINS
+# Working with the other plugins
+- Drum-bus pairs: put PotentialPunch first and Heat after it on your drum bus, then pick the same name in each: Boom Bap Bus, Lo-Fi Bus, Modern Bus or Glue Bus.
+- After a chain: Heat works well as the last insert after Dusty Loop, 90s Stab, Break Bus or Dub Drums, to glue the result and catch the peaks. Start with Bus Glue or Peak Catcher.
+- On the master: Beat Master or Loud & Clean, with LEVEL MATCH off, for loudness.
+
+The four chain presets are in Patina, Punch, Grit and Bleed. Their MANUAL pages show the insert order.
+
+Rules of thumb: Punch early, Heat late, and match levels with OUTPUT before you decide.
+
+= USER
+# User presets
+- To save: open the USER page, tap SAVE, then tap a slot. The slot now reads USER and its number.
+- To load: tap a slot. The slot you loaded last is lit.
+- Saving to a slot that is already filled replaces it straight away.
+- The 8 slots are kept on the drive the plugin is on, in a folder called PotentialSuite Presets. Every project and every copy of the plugin sees them, and updating the plugin keeps them.
+- A chain of your own: save each plugin's part to the same slot number, for example USER 3 in Punch and Heat. Later, tap USER 3 in each.
+- A slot keeps the knobs and switches. It does not keep the ROLL setting or the look.
+
+= HELP
+# Good to know
+- Q-Links: DRIVE, TONE, MIX, OUTPUT, PRESET, CHARACTER, CEILING and LEVEL MATCH.
+- Every setting is saved with your project.
+- Looks: Print Plate, Night Rack or Colour Block, on the SETTINGS page. A new look shows the next time the plugin loads.
+- It adds about 0.3 ms of delay (15 samples). The dry sound in MIX is delayed to match, so there is no phasing.
+- LEVEL MATCH evens out the average loudness over about a second, and it only turns down.
+- Stereo in, stereo out, at 44.1 kHz.
+
+Ideas, bugs and criticism are all welcome: github.com/PotentialBreakfast/mpc-vst-potentialheat

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 (2026-11)
+- **USER presets.** A new USER page with 8 slots: tap **SAVE**, then a slot, to keep the sound you have now; tap a slot to bring it back. Filled slots read USER 1 to USER 8, empty ones EMPTY, and the slot you loaded last is lit. No typing.
+- The slots are kept in a file beside your VST2 Plugins folder (`PotentialSuite Presets/PotentialHeat.txt`), so every project and every copy of the plugin sees the same slots, and updating the plugin keeps them.
+- Use the same slot number in PotentialPatina, PotentialPunch, PotentialGrit and PotentialBleed to keep a chain of your own.
+- **MANUAL page.** The plugin's manual is now on the MPC's screen: tap **MANUAL**, then the page buttons along the top (what it does, the controls, presets, the FX chains and their insert order, USER presets). The full PotentialSuite manual is on the [PotentialSuite page](https://github.com/PotentialBreakfast/potential-plugins).
+- Ten parameters were added at the end of the list (Save User Preset, User 1 to User 8, Manual Page); saved projects open as before.
+
 ## 1.3.0 (2026-11)
 - **LEVEL MATCH now measures.** It compares how loud the sound is going in and coming out (over about a second) and turns the processed sound down by the difference, so louder never just sounds better. Before, it guessed from DRIVE alone. Projects with LEVEL MATCH on will now sit at the same loudness as the dry sound.
 - **Drum-bus pair presets**: Boom Bap Bus, Lo-Fi Bus, Modern Bus and Glue Bus. They're in PotentialPunch 1.3.0 too, made to work together: put Punch first and Heat after it on your drum bus and pick the same name in each.
