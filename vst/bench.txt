@@ -1,2 +1,2 @@
 # MPC TOOLS bench (Open MPC tools/bench.c -j) on an MPC One, MPC OS 3.10.1, MPC running, 2026-11-14, PotentialHeat 1.4.0
-{"plugin": "PotentialHeat", "instrument": 0, "open_ms": 0.3, "p99_pct": 5.9, "max_pct": 7.0, "threads_pct": 0.0, "verdict": "PASS", "triggers": 1, "trigger_max_pct": 6.7}
+{"plugin": "PotentialHeat", "instrument": 0, "open_ms": 0.3, "p99_pct": 5.7, "max_pct": 6.4, "threads_pct": 0.0, "verdict": "PASS", "triggers": 1, "trigger_max_pct": 6.2}
