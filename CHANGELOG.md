@@ -1,5 +1,9 @@
 # Changelog
 
+
+## 1.5.1 (2026-11-15)
+
+- Lighter on the CPU, same sound: the oversampling filters share multiplies between mirrored taps (about 31% less work in a test over every character; output identical within 1 bit).
 ## 1.5.0 (2026-11-15)
 
 - A fourth look, **Vintage** (Potential1200's late-80s drum-machine look), on the LOOK keys.

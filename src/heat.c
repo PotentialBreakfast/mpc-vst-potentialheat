@@ -80,7 +80,8 @@ static inline float lm_step(lm_t *m, float p_in, float p_out, float k_e, float k
 typedef struct {
     float p[NP];
     int pending;
-    float up[2][NT], dn[2][NT];          /* filter histories (2x rate) */
+    float up[2][2 * NT], dn[2][2 * NT];  /* filter histories (2x rate), each sample stored twice (at i and i + NT) so a
+                                          * filter reads one straight run with no wrap-around (1.5.1) */
     int up_i, dn_i;
     float dry[2][32]; int dry_i;          /* dry delay to line up with the oversampled path */
     float dc_x[2], dc_y[2];               /* DC blocker (TAPE's asymmetry) */
@@ -295,15 +296,15 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
         float y2[2][2], dec[2] = {0, 0};
         /* up-sampling, polyphase: the half-band filter's odd phase is just the centre tap (a plain delay) */
         int ui = s->up_i;
-        for (int c = 0; c < 2; c++) s->up[c][ui] = in[c];
+        for (int c = 0; c < 2; c++) s->up[c][ui] = s->up[c][ui + NT] = in[c];
         float u[2][2];
-        for (int c = 0; c < 2; c++) {
+        for (int c = 0; c < 2; c++) {   /* the filter is symmetric: mirrored taps share one multiply (1.5.1) */
+            const float *p = &s->up[c][ui + NT];
             float acc = 0;
-            for (int m = 0; m < 16; m++) { int j = ui - m; if (j < 0) j += NT; acc += H[2 * m] * s->up[c][j]; }
-            int j = ui - 7; if (j < 0) j += NT;
-            u[c][0] = 2.0f * acc; u[c][1] = 2.0f * H[HD] * s->up[c][j];
+            for (int m = 0; m < 8; m++) acc += H[2 * m] * (p[-m] + p[m - 15]);
+            u[c][0] = 2.0f * acc; u[c][1] = 2.0f * H[HD] * p[-7];
         }
-        s->up_i = (ui + 1) % NT;
+        s->up_i = ui + 1 == NT ? 0 : ui + 1;
         for (int ph = 0; ph < 2; ph++) {
             for (int c = 0; c < 2; c++) {
                 float x = u[c][ph] * pre;
@@ -315,15 +316,16 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
             }
             /* down-sampling filter history */
             int di = s->dn_i;
-            for (int c = 0; c < 2; c++) s->dn[c][di] = y2[c][ph];
+            for (int c = 0; c < 2; c++) s->dn[c][di] = s->dn[c][di + NT] = y2[c][ph];
             if (ph == 0)                     /* keep the even samples: the delay is then exactly HD input samples */
                 for (int c = 0; c < 2; c++) {
+                    const float *q = &s->dn[c][di + NT];
                     float acc = 0;
-                    for (int t = 0; t < NT; t += 2) { int j = di - t; if (j < 0) j += NT; acc += H[t] * s->dn[c][j]; }
-                    { int j = di - HD; if (j < 0) j += NT; acc += H[HD] * s->dn[c][j]; }
+                    for (int t = 0; t < HD; t += 2) acc += H[t] * (q[-t] + q[t - (NT - 1)]);
+                    acc += H[HD] * q[-HD];
                     dec[c] = acc;
                 }
-            s->dn_i = (di + 1) % NT;
+            s->dn_i = di + 1 == NT ? 0 : di + 1;
         }
         float wet_raw[2], dry_d[2];
         for (int c = 0; c < 2; c++) {
