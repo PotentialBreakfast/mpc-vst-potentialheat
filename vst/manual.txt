@@ -49,7 +49,7 @@ Rules of thumb: Punch early, Heat late, and match levels with OUTPUT before you 
 # Good to know
 - Q-Links: DRIVE, TONE, MIX, OUTPUT, PRESET, CHARACTER, CEILING and LEVEL MATCH.
 - Every setting is saved with your project.
-- Looks: Print Plate, Night Rack or Colour Block, on the SETTINGS page. A new look shows the next time the plugin loads.
+- Looks: Print Plate, Night Rack, Colour Block or Vintage, on the SETTINGS page. A new look shows the next time the plugin loads.
 - It adds about 0.3 ms of delay (15 samples). The dry sound in MIX is delayed to match, so there is no phasing.
 - LEVEL MATCH evens out the average loudness over about a second, and it only turns down.
 - Stereo in, stereo out, at 44.1 kHz.
