@@ -2,7 +2,7 @@
  "name": "PotentialHeat",
  "vendor": "PotentialBreaks",
  "uid": "PbHt",
- "version": 1501,
+ "version": 1600,
  "so": "potentialheat.so",
  "params": "params.json",
  "layout": "layout.conf",
