@@ -36,9 +36,9 @@ The curves run at twice the sample rate inside, so even pushed hard it stays cle
 
 Add it as an **insert effect** on a track, program, pad or bus. It won't be in the instrument list. Tap a preset, then set how hard it works with **DRIVE**. On a drum bus, try it after PotentialPunch: Punch shapes the hits, Heat warms them up and catches the peaks.
 
-## Four looks
+## Five looks
 
-PotentialHeat comes in four looks: **Print Plate** (the default), **Night Rack**, **Colour Block** and **Vintage** (a late-80s drum machine: warm grey panel, cream keys, an amber display). Open the **SETTINGS** page and tap one of the big LOOK keys. The new look shows the next time the plugin loads: take it off the track and add it again, or load your project again. Your choice is kept on your MPC for every project. The sound and the controls are the same in all four.
+PotentialHeat comes in five looks: **Print Plate** (the default), **Night Rack**, **Colour Block**, **Vintage** (a late-80s drum machine: warm grey panel, cream keys, an amber display) and **Hi-Fi** (PotentialBox's look: walnut cheeks, a brushed charcoal faceplate, domed knobs lit in the plugin's colour, moulded cream keys, green glass displays). Open the **SETTINGS** page and tap one of the big LOOK keys. The new look shows the next time the plugin loads: take it off the track and add it again, or load your project again. Your choice is kept on your MPC for every project. The sound and the controls are the same in all four.
 
 ## Limitations
 
